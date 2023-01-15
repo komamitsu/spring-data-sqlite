@@ -99,6 +99,20 @@ publishing {
 }
 
 signing {
+    if (project.hasProperty("signing.gnupg.keyName")) {
+        setRequired(true)
+    }
+    else if (project.hasProperty("signingKey")) {
+        // def signingKeyId = project.property("signingKeyId").toString()
+        def signingKey = project.property("signingKey").toString()
+        def signingPassword = project.property("signingPassword").toString()
+        // useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        setRequired(true)
+    }
+    else {
+        setRequired(false)
+    }
     sign publishing.publications.mavenJava
 }
 
