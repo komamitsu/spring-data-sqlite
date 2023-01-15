@@ -43,6 +43,23 @@ public class MyApplication {
   :
 ```
 
+## Repository helper class
+
+Spring Data JDBC basically requires users to use auto generated ID columns. If users want to use non auto generated ID column, there are [some workarounds](https://spring.io/blog/2021/09/09/spring-data-jdbc-how-to-use-custom-id-generation), but they're not perfect solutions. Spring Data JDBC for SQLite provides a repository helper class `SqliteHelperRepository` that exposes JdbcAggregateTemplate's `insert()` and `update()` methods.
+
+```java
+public interface CarRepository
+    extends PagingAndSortingRepository<Car, Integer>, SqliteHelperRepository<Car> {}
+```
+
+```java
+    Car car = new Car(assignedCarId, "my new car");
+    carRepository.insert(car);
+       :
+    carRepository.update(modifiedCar);
+```
+
+
 ## Example application
 
 [Example application](../example) is a JVM application that uses this integration. It only serves as a reference and does not necessarily meet production code standards.
