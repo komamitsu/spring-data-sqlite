@@ -1,0 +1,120 @@
+plugins {
+    id "java-library"
+    id "maven-publish"
+    id "signing"
+    id "com.diffplug.spotless" version "6.12.1"
+}
+
+project.version = '1.0.0-SNAPSHOT'
+group = "org.komamitsu"
+
+repositories {
+    mavenCentral()
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+    integrationTestCompileOnly.extendsFrom testCompileOnly
+}
+
+
+dependencies {
+    implementation "org.slf4j:slf4j-api:1.7.36"
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+    api "org.springframework.data:spring-data-jdbc:2.4.5"
+    implementation 'org.xerial:sqlite-jdbc:3.40.0.0'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+    testImplementation "org.assertj:assertj-core:3.22.0"
+    testImplementation "org.mockito:mockito-core:3.12.4"
+    testImplementation "org.mockito:mockito-junit-jupiter:4.8.1"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:2.7.6"
+    integrationTestImplementation "com.zaxxer:HikariCP:4.0.3"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'spring-data-sqlite'
+            from components.java
+            pom {
+                name = 'Spring Data integration with SQLite'
+                description = 'Spring Data integration with SQLite'
+                url = 'https://github.com/komamitsu/spring-data-sqlite'
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'komamitsu'
+                        name = 'Mitsunori Komatsu'
+                        email = 'komamitsu@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/komamitsu/spring-data-sqlite.git'
+                    developerConnection = 'scm:git:https://github.com/komamitsu/spring-data-sqlite.git'
+                    url = 'https://github.com/komamitsu/spring-data-sqlite'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = uri(project.version.toString().endsWith("-SNAPSHOT") ?
+                    "https://oss.sonatype.org/content/repositories/snapshots/" :
+                    "https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            credentials {
+                username = project.hasProperty("ossrhUsername") ?
+                        project.property("ossrhUsername").toString() : ""
+                password = project.hasProperty("ossrhPassword") ?
+                        project.property("ossrhPassword").toString() : ""
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+spotless {
+  java {
+    importOrder()
+    removeUnusedImports()
+    googleJavaFormat('1.7')
+    formatAnnotations()
+  }
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs the integration tests'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }  // ensures integration tests are run every time when called
+}

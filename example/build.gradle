@@ -1,0 +1,62 @@
+plugins {
+    id 'java-library'
+    id 'application'
+    id "com.diffplug.spotless" version "6.12.1"
+}
+
+group 'org.komamitsu'
+version '1.0-SNAPSHOT'
+
+def springDataSqliteVersion = getSpringDataSqliteVersion()
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation "org.komamitsu:spring-data-sqlite:${springDataSqliteVersion}"
+    implementation 'org.springframework.boot:spring-boot-starter:2.7.6'
+    implementation 'org.springframework.boot:spring-boot-starter-aop:2.7.6'
+    implementation 'org.springframework.retry:spring-retry:1.3.4'
+    implementation 'com.zaxxer:HikariCP:4.0.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+application {
+    mainClassName 'org.komamitsu.springdata.sqlite.example.Main'
+}
+
+spotless {
+  java {
+    importOrder()
+    removeUnusedImports()
+    googleJavaFormat('1.7')
+    formatAnnotations()
+  }
+}
+
+static def getSpringDataSqliteVersion() {
+    def pb = new ProcessBuilder("./gradlew", "properties", "-q").directory(new File(".."))
+    def process = pb.start()
+    def exitCode = process.waitFor()
+    if (exitCode != 0) {
+        throw new RuntimeException("getSpringDataSqliteVersion() failed(${exitCode}): ${process}")
+    }
+    def version
+    process.inputStream.text.readLines().each { line ->
+        def parts = line.split(":")
+        if (parts.size() == 2 && parts[0].trim() == 'version') {
+            version = parts[1].trim()
+        }
+    }
+    if (version != null) {
+        return version
+    }
+    throw new IllegalStateException("Spring Data SQLite version is not found")
+}

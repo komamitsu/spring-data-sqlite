@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java_version: [8, 11, 17]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK ${{ matrix.java_version }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java_version }}
+    - name: Setup and execute Gradle 'check' task
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: check
+    - name: Upload Gradle test reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: gradle_test_reports
+        path: build/reports/tests/test
+
+  integration-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java_version: [8, 11, 17]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK ${{ matrix.java_version }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java_version }}
+    - name: Setup and execute Gradle 'integrationTest' task
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: integrationTest
+    - name: Upload Gradle test reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: gradle_integration_test_reports
+        path: build/reports/tests/integrationTest
+
+  test-on-example-app:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java_version: [8, 11, 17]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK ${{ matrix.java_version }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java_version }}
+    - name: Install spring-data-sqlite to Maven local
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: publishToMavenLocal
+    - name: Execute the example app to test spring-data-sqlite
+      uses: gradle/gradle-build-action@v2
+      with:
+        build-root-directory: example
+        arguments: run
+

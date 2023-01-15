@@ -1,0 +1,12 @@
+*.class
+hs_err_pid*
+target/
+build/
+.gradle/
+out/
+.idea/
+.idea_modules/
+*.iml
+*.ipr
+*.iws
+*.db
