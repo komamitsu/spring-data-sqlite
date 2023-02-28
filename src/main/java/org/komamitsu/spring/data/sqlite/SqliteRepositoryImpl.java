@@ -7,10 +7,10 @@ import org.springframework.data.mapping.PersistentEntity;
 
 /**
  * Default implementation of {@link org.springframework.data.repository.CrudRepository} and ${@link
- * SqliteHelperRepository} interface in the integration of Spring Data and SQLite.
+ * SqliteRepository} interface in the integration of Spring Data and SQLite.
  */
 public class SqliteRepositoryImpl<T, ID> extends SimpleJdbcRepository<T, ID>
-    implements SqliteHelperRepository<T> {
+    implements SqliteRepository<T, ID> {
   private final JdbcAggregateOperations entityOperation;
 
   public SqliteRepositoryImpl(

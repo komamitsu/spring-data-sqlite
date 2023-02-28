@@ -1,6 +1,8 @@
 package org.komamitsu.spring.data.sqlite;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  * A Spring Data fragment repository interface for SQLite. This interface has a feature that's not
@@ -13,8 +15,10 @@ import org.springframework.data.repository.CrudRepository;
  * CrudRepository}.
  *
  * @param <T> a model class
+ * @param <ID> an identifier class
  */
-public interface SqliteHelperRepository<T> {
+@NoRepositoryBean
+public interface SqliteRepository<T, ID> extends PagingAndSortingRepository<T, ID> {
   T insert(T instance);
 
   T update(T instance);

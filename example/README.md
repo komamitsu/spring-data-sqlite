@@ -12,17 +12,6 @@ $ pwd
 $ ./gradlew publishToMavenLocal
 ```
 
-Also, an underlying database needs to be setup in advance. Please set up a PostgreSQL database as follows
-- database: `postgres`
-- username: `postgres`
-- password: `postgres`
-
-or execute Docker Compose that runs a PostgreSQL database with the proper configuration
-
-```
-$ docker-compose up
-```
-
 ## Execution
 
 The following command executes this application that invokes some features of the integration.
