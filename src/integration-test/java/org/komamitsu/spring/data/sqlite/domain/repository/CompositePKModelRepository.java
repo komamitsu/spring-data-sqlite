@@ -2,19 +2,16 @@ package org.komamitsu.spring.data.sqlite.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.komamitsu.spring.data.sqlite.SqliteHelperRepository;
+import org.komamitsu.spring.data.sqlite.SqliteRepository;
 import org.komamitsu.spring.data.sqlite.domain.model.CompositePKModel;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface CompositePKModelRepository
-    extends PagingAndSortingRepository<CompositePKModel, Integer>,
-        SqliteHelperRepository<CompositePKModel> {
+public interface CompositePKModelRepository extends SqliteRepository<CompositePKModel, Integer> {
 
   Optional<CompositePKModel> findFirstByAccountIdAndAccountType(int accountId, int accountType);
 
@@ -37,7 +34,7 @@ public interface CompositePKModelRepository
    * @param accountId account ID to be updated
    * @param accountType account type to be updated
    * @param balance new balance value
-   * @param someColumn new some column value
+   * @param name name value
    * @return The number of updated records
    */
   @Modifying

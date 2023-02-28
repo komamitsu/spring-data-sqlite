@@ -2,16 +2,13 @@ package org.komamitsu.spring.data.sqlite.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.komamitsu.spring.data.sqlite.SqliteHelperRepository;
+import org.komamitsu.spring.data.sqlite.SqliteRepository;
 import org.komamitsu.spring.data.sqlite.domain.model.SinglePKModel;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface SinglePKModelRepository
-    extends PagingAndSortingRepository<SinglePKModel, Integer>,
-        SqliteHelperRepository<SinglePKModel> {
+public interface SinglePKModelRepository extends SqliteRepository<SinglePKModel, Integer> {
 
   Optional<SinglePKModel> findFirstByAccountId(int accountId);
 
