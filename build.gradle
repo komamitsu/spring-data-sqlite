@@ -21,12 +21,6 @@ java {
     withSourcesJar()
 }
 
-tasks.withType(JavaCompile) {
-    if (JavaVersion.current() >= JavaVersion.VERSION_1_9) {
-        options.release.set(8)
-    }
-}
-
 sourceSets {
     integrationTest {
         java {
