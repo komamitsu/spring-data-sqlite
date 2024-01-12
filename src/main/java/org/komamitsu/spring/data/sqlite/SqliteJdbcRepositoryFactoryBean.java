@@ -66,7 +66,9 @@ class SqliteJdbcRepositoryFactoryBean<T extends Repository<S, ID>, S, ID extends
     this.dialect = dialect;
   }
 
-  /** @param dataAccessStrategy can be {@literal null}. */
+  /**
+   * @param dataAccessStrategy can be {@literal null}.
+   */
   @Autowired
   @Override
   public void setDataAccessStrategy(DataAccessStrategy dataAccessStrategy) {
