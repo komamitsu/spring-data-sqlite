@@ -120,7 +120,7 @@ spotless {
   java {
     importOrder()
     removeUnusedImports()
-    googleJavaFormat('1.7')
+    googleJavaFormat('1.19.1')
     formatAnnotations()
   }
 }
