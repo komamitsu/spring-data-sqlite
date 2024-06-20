@@ -49,7 +49,7 @@ dependencies {
     testImplementation "org.assertj:assertj-core:3.25.3"
     testImplementation "org.mockito:mockito-core:5.11.0"
     testImplementation "org.mockito:mockito-junit-jupiter:5.9.0"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:2.7.6"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:3.3.1"
     integrationTestImplementation "com.zaxxer:HikariCP:5.1.0"
 }
 
