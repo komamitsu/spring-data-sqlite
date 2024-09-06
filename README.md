@@ -6,7 +6,7 @@ This is a Spring Data JDBC integration for SQLite. The basic usage follows [Spri
 
 For Gradle
 ```
-    implementation "org.komamitsu:spring-data-sqlite:1.0.0"
+    implementation "org.komamitsu:spring-data-sqlite:1.2.0"
 ```
 
 For Maven
@@ -14,7 +14,7 @@ For Maven
 <dependency>
     <groupId>org.komamitsu</groupId>
     <artifactId>spring-data-sqlite</artifactId>
-    <version>1.0.0</version>
+    <version>1.2.0</version>
 </dependency>
 
 ```
