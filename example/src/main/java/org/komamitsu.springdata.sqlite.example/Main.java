@@ -3,11 +3,15 @@ package org.komamitsu.springdata.sqlite.example;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
+
 import org.komamitsu.spring.data.sqlite.EnableSqliteRepositories;
+import org.komamitsu.springdata.sqlite.example.domain.model.Contact;
 import org.komamitsu.springdata.sqlite.example.domain.model.Monster;
 import org.komamitsu.springdata.sqlite.example.domain.model.Player;
 import org.komamitsu.springdata.sqlite.example.domain.repository.MonsterRepository;
 import org.komamitsu.springdata.sqlite.example.domain.repository.PlayerRepository;
+import org.komamitsu.springdata.sqlite.example.domain.repository.ContactRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +19,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.retry.annotation.EnableRetry;
 
@@ -25,11 +31,21 @@ import org.springframework.retry.annotation.EnableRetry;
 public class Main {
   private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
+  @Configuration
+  public static class JdbcConfiguration extends AbstractJdbcConfiguration {
+    @Override
+    protected List<?> userConverters() {
+      return List.of(new IntegerToBooleanConverter());
+    }
+  }
+
   @Autowired JdbcTemplate template;
 
   @Autowired PlayerRepository playerRepository;
 
   @Autowired MonsterRepository monsterRepository;
+
+  @Autowired ContactRepository contactRepository;
 
   public static void main(String[] args) {
     SpringApplication.run(Main.class, args);
@@ -44,6 +60,12 @@ public class Main {
   public CommandLineRunner run() throws Exception {
     return (String[] args) -> {
       setUpSchema();
+
+      contactRepository.insert(new Contact(42L, true));
+      System.out.println("FOUND: " + contactRepository.findById(42L));
+
+      System.out.println("Skipping the following tests because this branch is only for testing Spring Data Converter");
+      if (true) return;
 
       String playerId = "foo-bar";
 
