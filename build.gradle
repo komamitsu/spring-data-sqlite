@@ -5,20 +5,20 @@ plugins {
     id "com.diffplug.spotless" version "6.25.0"
 }
 
-project.version = '1.3.0'
+project.version = '1.4.0'
 group = "org.komamitsu"
 
 repositories {
     mavenCentral()
 }
 
-tasks.withType(Test) {
-    useJUnitPlatform()
-}
-
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add("-parameters")
 }
 
 sourceSets {
@@ -38,19 +38,31 @@ configurations {
     integrationTestCompileOnly.extendsFrom testCompileOnly
 }
 
-
 dependencies {
     implementation "org.slf4j:slf4j-api:2.0.11"
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
-    api "org.springframework.data:spring-data-jdbc:2.4.5"
-    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
+    implementation "javax.annotation:javax.annotation-api:1.3.2"
+    implementation platform("org.springframework.boot:spring-boot-dependencies:3.3.5")
+    api "org.springframework.data:spring-data-jdbc"
+    implementation "org.xerial:sqlite-jdbc:3.45.1.0"
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.10.1"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.10.2"
     testImplementation "org.assertj:assertj-core:3.25.3"
     testImplementation "org.mockito:mockito-core:5.11.0"
     testImplementation "org.mockito:mockito-junit-jupiter:5.9.0"
-    testImplementation "org.springframework.boot:spring-boot-starter-test:2.7.6"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
     integrationTestImplementation "com.zaxxer:HikariCP:5.1.0"
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+tasks.register('integrationTest', Test) {
+    description = 'Runs the integration tests'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }  // ensures integration tests are run every time when called
 }
 
 publishing {
@@ -123,12 +135,4 @@ spotless {
     googleJavaFormat()
     formatAnnotations()
   }
-}
-
-task integrationTest(type: Test) {
-    description = 'Runs the integration tests'
-    group = 'verification'
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    outputs.upToDateWhen { false }  // ensures integration tests are run every time when called
 }

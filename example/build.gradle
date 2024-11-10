@@ -8,13 +8,6 @@ group 'org.komamitsu'
 version '1.0-SNAPSHOT'
 
 def springDataSqliteVersion = getSpringDataSqliteVersion()
-def withSpringBoot2 = System.getenv('WITH_SPRING_BOOT_2')?.toBoolean() ?: false
-if (withSpringBoot2) {
-    println("Testing with Spring Boot 2")
-}
-else {
-    println("Testing with Spring Boot 3")
-}
 
 repositories {
     mavenCentral()
@@ -23,35 +16,20 @@ repositories {
 
 dependencies {
     implementation "org.komamitsu:spring-data-sqlite:${springDataSqliteVersion}"
-    if (withSpringBoot2) {
-        implementation platform('org.springframework.boot:spring-boot-dependencies:2.7.18')
-    } else {
-        implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
-    }
+    implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.retry:spring-retry:1.3.4'
     implementation 'com.zaxxer:HikariCP:4.0.3'
-    implementation('org.slf4j:slf4j-api') {
-        if (withSpringBoot2) {
-            version {
-                // This version of spring-boot-starter-logging uses logback-classic:1.2.x.
-                // But Spring Data JDBC for SQLite uses slf4j-api:2.x and Spring logging doesn't work.
-                // So we specify a proper version here.
-                strictly '1.7.36'
-            }
-        }
-    }
+    implementation 'org.slf4j:slf4j-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
 compileJava {
-    if (!withSpringBoot2) {
-        // This is needed only for Spring Boot 3.
-        // It will be not needed later https://stackoverflow.com/questions/78374721/spring-data-jdbc-repository-bean-creation-error/78376635#comment138178415_78376635.
-        options.compilerArgs << '-parameters'
-    }
+    // This is needed when using Spring Boot 3.
+    // See https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-6.1-Release-Notes#parameter-name-retention for detail.
+    options.compilerArgs << '-parameters'
 }
 
 test {
