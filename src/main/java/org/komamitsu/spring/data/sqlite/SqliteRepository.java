@@ -18,7 +18,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @param <ID> an identifier class
  */
 @NoRepositoryBean
-public interface SqliteRepository<T, ID> extends PagingAndSortingRepository<T, ID> {
+public interface SqliteRepository<T, ID>
+    extends PagingAndSortingRepository<T, ID>, CrudRepository<T, ID> {
   T insert(T instance);
 
   T update(T instance);
