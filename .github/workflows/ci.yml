@@ -10,13 +10,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java_version: [17, 21]
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 11
+    - name: Set up JDK ${{ matrix.java_version }}
       uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 11
+        java-version: ${{ matrix.java_version }}
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Execute Gradle 'check' task
@@ -24,18 +27,21 @@ jobs:
     - name: Upload Gradle test reports
       uses: actions/upload-artifact@v4
       with:
-        name: gradle_test_reports
+        name: gradle_test_reports_with_java_${{ matrix.java_version }}
         path: build/reports/tests/test
 
   integration-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java_version: [17, 21]
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 11
+    - name: Set up JDK ${{ matrix.java_version }}
       uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 11
+        java-version: ${{ matrix.java_version }}
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Execute Gradle 'integrationTest' task
@@ -43,53 +49,27 @@ jobs:
     - name: Upload Gradle test reports
       uses: actions/upload-artifact@v4
       with:
-        name: gradle_integration_test_reports
+        name: gradle_integration_test_reports_with_java_${{ matrix.java_version }}
         path: build/reports/tests/integrationTest
 
-  test-on-example-app-with-spring-boot-2:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 11
-      uses: actions/setup-java@v4
-      with:
-        distribution: temurin
-        java-version: 11
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-    - name: Install spring-data-sqlite to Maven local
-      run: ./gradlew publishToMavenLocal
-    - name: Execute the example app using Spring Boot 2 to test spring-data-sqlite
-      working-directory: example
-      env:
-        WITH_SPRING_BOOT_2: true
-      run: ./gradlew run
-
-  test-on-example-app-with-spring-boot-3:
+  test-on-example-app:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         java_version: [17, 21]
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 11 to install spring-data-sqlite for `publishToMavenLocal`
-      uses: actions/setup-java@v4
-      with:
-        distribution: temurin
-        java-version: 11
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-    - name: Install spring-data-sqlite to Maven local
-      run: ./gradlew publishToMavenLocal
-    - name: Set up JDK ${{ matrix.java_version }} for testing
+    - name: Set up JDK ${{ matrix.java_version }}
       uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: ${{ matrix.java_version }}
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
-    - name: Execute the example app using Spring Boot 3 to test spring-data-sqlite
+    - name: Install spring-data-sqlite to Maven local
+      run: ./gradlew publishToMavenLocal
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Execute the example app using Spring Boot to test spring-data-sqlite
       working-directory: example
-      env:
-        WITH_SPRING_BOOT_2: false
       run: ./gradlew run
