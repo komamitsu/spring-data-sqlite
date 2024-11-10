@@ -10,67 +10,86 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java_version: [11, 17]
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK ${{ matrix.java_version }}
-      uses: actions/setup-java@v3
+    - uses: actions/checkout@v4
+    - name: Set up JDK 11
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: ${{ matrix.java_version }}
-    - name: Setup and execute Gradle 'check' task
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: check
+        java-version: 11
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Execute Gradle 'check' task
+      run: ./gradlew check
     - name: Upload Gradle test reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: gradle_test_reports
         path: build/reports/tests/test
 
   integration-test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java_version: [11, 17]
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK ${{ matrix.java_version }}
-      uses: actions/setup-java@v3
+    - uses: actions/checkout@v4
+    - name: Set up JDK 11
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: ${{ matrix.java_version }}
-    - name: Setup and execute Gradle 'integrationTest' task
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: integrationTest
+        java-version: 11
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Execute Gradle 'integrationTest' task
+      run: ./gradlew integrationTest
     - name: Upload Gradle test reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: gradle_integration_test_reports
         path: build/reports/tests/integrationTest
 
-  test-on-example-app:
+  test-on-example-app-with-spring-boot-2:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 11
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 11
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Install spring-data-sqlite to Maven local
+      run: ./gradlew publishToMavenLocal
+    - name: Execute the example app using Spring Boot 2 to test spring-data-sqlite
+      working-directory: example
+      env:
+        WITH_SPRING_BOOT_2: true
+      run: ./gradlew run
+
+  test-on-example-app-with-spring-boot-3:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java_version: [11, 17]
+        java_version: [17, 21]
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK ${{ matrix.java_version }}
-      uses: actions/setup-java@v3
+    - uses: actions/checkout@v4
+    - name: Set up JDK 11 to install spring-data-sqlite for `publishToMavenLocal`
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 11
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Install spring-data-sqlite to Maven local
+      run: ./gradlew publishToMavenLocal
+    - name: Set up JDK ${{ matrix.java_version }} for testing
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: ${{ matrix.java_version }}
-    - name: Install spring-data-sqlite to Maven local
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: publishToMavenLocal
-    - name: Execute the example app to test spring-data-sqlite
-      uses: gradle/gradle-build-action@v2
-      with:
-        build-root-directory: example
-        arguments: run
-
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Execute the example app using Spring Boot 3 to test spring-data-sqlite
+      working-directory: example
+      env:
+        WITH_SPRING_BOOT_2: false
+      run: ./gradlew run
