@@ -17,10 +17,6 @@ java {
     withSourcesJar()
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs.add("-parameters")
-}
-
 sourceSets {
     integrationTest {
         java {
@@ -63,6 +59,10 @@ tasks.register('integrationTest', Test) {
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     outputs.upToDateWhen { false }  // ensures integration tests are run every time when called
+}
+
+compileIntegrationTestJava {
+    options.compilerArgs << "-parameters"
 }
 
 publishing {
