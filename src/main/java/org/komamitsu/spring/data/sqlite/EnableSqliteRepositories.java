@@ -115,8 +115,18 @@ public @interface EnableSqliteRepositories {
    * namedParameterJdbcTemplate}.
    *
    * @return jdbc operations ref
+   * @deprecated since 4.0, use {@link #jdbcAggregateOperationsRef()} instead.
    */
+  @Deprecated
   String jdbcOperationsRef() default "";
+
+  /**
+   * Configures the name of the {@link org.springframework.data.jdbc.core.JdbcAggregateOperations}
+   * bean definition to be used to create repositories discovered through this annotation.
+   *
+   * @return jdbc aggregate operations ref
+   */
+  String jdbcAggregateOperationsRef() default "";
 
   /**
    * Configures the name of the {@link
@@ -125,7 +135,9 @@ public @interface EnableSqliteRepositories {
    * defaultDataAccessStrategy}.
    *
    * @return data access strategy ref
+   * @deprecated since 4.0, use {@link #jdbcAggregateOperationsRef()} instead.
    */
+  @Deprecated
   String dataAccessStrategyRef() default "";
 
   /**
@@ -143,4 +155,14 @@ public @interface EnableSqliteRepositories {
    * @return query lookup strategy
    */
   QueryLookupStrategy.Key queryLookupStrategy() default QueryLookupStrategy.Key.CREATE_IF_NOT_FOUND;
+
+  /**
+   * Configures whether to enable default transactions for Spring Data JDBC repositories. If
+   * disabled, repositories must be used behind a facade that's configuring transactions (e.g. using
+   * Spring's annotation driven transaction facilities) or repository methods have to be used to
+   * demarcate transactions.
+   *
+   * @return whether to enable default transactions
+   */
+  boolean enableDefaultTransactions() default true;
 }

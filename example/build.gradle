@@ -8,6 +8,7 @@ group 'org.komamitsu'
 version '1.0-SNAPSHOT'
 
 def springDataSqliteVersion = getSpringDataSqliteVersion()
+def springBootVersion = System.getenv('EXAMPLE_APP_SPRING_BOOT_VERSION') ?: '4'
 
 repositories {
     mavenCentral()
@@ -16,10 +17,18 @@ repositories {
 
 dependencies {
     implementation "org.komamitsu:spring-data-sqlite:${springDataSqliteVersion}"
-    implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
+    if (springBootVersion == '3') {
+        implementation platform('org.springframework.boot:spring-boot-dependencies:3.3.5')
+        implementation 'org.springframework.boot:spring-boot-starter-aop'
+        implementation 'org.springframework.retry:spring-retry:1.3.4'
+    } else {
+        implementation platform('org.springframework.boot:spring-boot-dependencies:4.0.1')
+        implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+        implementation 'org.springframework:spring-aop'
+        implementation 'org.aspectj:aspectjweaver'
+        implementation 'org.springframework.retry:spring-retry:2.0.11'
+    }
     implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-    implementation 'org.springframework.retry:spring-retry:1.3.4'
     implementation 'com.zaxxer:HikariCP:4.0.3'
     implementation 'org.slf4j:slf4j-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
