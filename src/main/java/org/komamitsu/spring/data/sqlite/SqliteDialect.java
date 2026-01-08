@@ -4,8 +4,6 @@ import org.springframework.data.relational.core.dialect.AbstractDialect;
 import org.springframework.data.relational.core.dialect.LimitClause;
 import org.springframework.data.relational.core.dialect.LockClause;
 import org.springframework.data.relational.core.sql.IdentifierProcessing;
-import org.springframework.data.relational.core.sql.IdentifierProcessing.LetterCasing;
-import org.springframework.data.relational.core.sql.IdentifierProcessing.Quoting;
 import org.springframework.data.relational.core.sql.LockOptions;
 
 /**
@@ -63,8 +61,25 @@ public class SqliteDialect extends AbstractDialect {
     return LOCK_CLAUSE;
   }
 
+  // Custom implementation to avoid binary incompatibility between Spring Data 3.x and 4.x.
+  // The return type of IdentifierProcessing.create() changed from DefaultIdentifierProcessing to
+  // IdentifierProcessing, which causes NoSuchMethodError when compiled against one version and
+  // run against the other.
+  private static final IdentifierProcessing IDENTIFIER_PROCESSING =
+      new IdentifierProcessing() {
+        @Override
+        public String quote(String identifier) {
+          return "\"" + identifier + "\"";
+        }
+
+        @Override
+        public String standardizeLetterCase(String identifier) {
+          return identifier.toLowerCase();
+        }
+      };
+
   @Override
   public IdentifierProcessing getIdentifierProcessing() {
-    return IdentifierProcessing.create(Quoting.ANSI, LetterCasing.LOWER_CASE);
+    return IDENTIFIER_PROCESSING;
   }
 }
