@@ -1,7 +1,7 @@
 plugins {
     id "java-library"
     id "maven-publish"
-    id "signing"
+    id "org.jreleaser" version "1.22.0"
     id "com.diffplug.spotless" version "6.25.0"
 }
 
@@ -97,35 +97,30 @@ publishing {
     }
     repositories {
         maven {
-            url = uri(project.version.toString().endsWith("-SNAPSHOT") ?
-                    "https://oss.sonatype.org/content/repositories/snapshots/" :
-                    "https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = project.hasProperty("ossrhUsername") ?
-                        project.property("ossrhUsername").toString() : ""
-                password = project.hasProperty("ossrhPassword") ?
-                        project.property("ossrhPassword").toString() : ""
-            }
+            name = "staging"
+            url = uri(layout.buildDirectory.dir("staging-deploy"))
         }
     }
 }
 
-signing {
-    if (project.hasProperty("signing.gnupg.keyName")) {
-        setRequired(true)
+jreleaser {
+    signing {
+        pgp {
+            active = 'ALWAYS'
+            armored = true
+        }
     }
-    else if (project.hasProperty("signingKey")) {
-        // def signingKeyId = project.property("signingKeyId").toString()
-        def signingKey = project.property("signingKey").toString()
-        def signingPassword = project.property("signingPassword").toString()
-        // useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        setRequired(true)
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'RELEASE'
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('target/staging-deploy')
+                }
+            }
+        }
     }
-    else {
-        setRequired(false)
-    }
-    sign publishing.publications.mavenJava
 }
 
 spotless {
