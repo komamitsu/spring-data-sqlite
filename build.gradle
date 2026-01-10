@@ -65,6 +65,8 @@ compileIntegrationTestJava {
     options.compilerArgs << "-parameters"
 }
 
+def stagingDir = layout.buildDirectory.dir("staging-deploy")
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -98,7 +100,7 @@ publishing {
     repositories {
         maven {
             name = "staging"
-            url = uri(layout.buildDirectory.dir("staging-deploy"))
+            url = uri(stagingDir)
         }
     }
 }
@@ -116,7 +118,7 @@ jreleaser {
                 sonatype {
                     active = 'RELEASE'
                     url = 'https://central.sonatype.com/api/v1/publisher'
-                    stagingRepository('target/staging-deploy')
+                    stagingRepository(stagingDir.get().asFile.path)
                 }
             }
         }
